@@ -12,19 +12,33 @@ public class Worker : BackgroundService
     {
         _logger = logger;
         _leagueClient = leagueClient;
+        _leagueClient.Subscribe("/lol-gameflow/v1/gameflow-phase", GameFlowPhase);
+    }
+    void GameFlowPhase(OnWebsocketEventArgs obj)
+    {
+        _logger.LogInformation($"Gameflow Phase: {obj.Data}");
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            var data = await _leagueClient.Request(LeagueClient.requestMethod.GET, "/lol-summoner/v1/current-summoner");
-            using (JsonDocument document = JsonDocument.Parse(data))
+            try
             {
-                var JsonDeserialized = document.RootElement.GetProperty("displayName").ToString();
-                _logger.LogInformation($"Current Summoner Name: {JsonDeserialized}");
+                var data = await _leagueClient.Request(LeagueClient.requestMethod.GET, "/lol-champ-select/v1/summoners/0");
+                using (JsonDocument document = JsonDocument.Parse(data))
+                {
+                    var summonerId = document.RootElement.GetProperty("summonerId");
+                    var summonerData = await _leagueClient.Request(LeagueClient.requestMethod.GET, $"/lol-summoner/v1/summoners/{summonerId}");
+                    var summonerName = JsonDocument.Parse(summonerData).RootElement.GetProperty("displayName").GetString();
+                    _logger.LogInformation($"Current Summoner Id: {summonerId}, Summoner Name: {summonerName}");
+                }
             }
-            await Task.Delay(1000, stoppingToken);
+            catch (Exception)
+            {
+                //The code will search for a valid Id
+            }
+            await Task.Delay(3000, stoppingToken);
         }
     }
 }
