@@ -9,6 +9,10 @@ IHost host = Host.CreateDefaultBuilder(args)
     {
         services.AddSingleton(leagueClient);
         services.AddHostedService<Worker>();
+        services.AddWindowsService(options =>
+        {
+            options.ServiceName = "U.gg Auto Multisearch";
+        });
     })
     .Build();
 
