@@ -92,7 +92,7 @@ public class Worker : BackgroundService
             {
                 var summonerNames = await SummonerNamesListAsync();
                 await OpenBrowserAsync(summonerNames);
-                //Giving 2 minutes delay to wait for the state to change
+                //Giving 3 minutes delay to wait for the state to change
                 await Task.Delay(TimeSpan.FromMinutes(3), stoppingToken);
             }
             else
