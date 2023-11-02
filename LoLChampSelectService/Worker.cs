@@ -33,10 +33,10 @@ public class Worker : BackgroundService
                 var data = await _leagueClient.Request(LeagueClient.requestMethod.GET, $"/lol-champ-select/v1/summoners/{i}");
                 using (JsonDocument document = JsonDocument.Parse(data))
                 {
-                    var summonerId = document.RootElement.GetProperty("summonerId").GetString();
+                    var summonerId = document.RootElement.GetProperty("summonerId");
                     var summonerData = await _leagueClient.Request(LeagueClient.requestMethod.GET, $"/lol-summoner/v1/summoners/{summonerId}");
                     var summonerName = JsonDocument.Parse(summonerData).RootElement.GetProperty("displayName").GetString();
-                    nameList.Add(summonerId);
+                    nameList.Add(summonerName);
                 }
             }
             catch (Exception)
